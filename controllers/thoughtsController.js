@@ -4,7 +4,9 @@ module.exports = {
   // Get all Thoughts
   async getThoughts(req, res) {
     try {
-      const thoughtData = await Thought.find();
+      const thoughtData = await Thought.find()
+      .select('-__v');
+
       res.json(thoughtData);
     } catch (err) {
       res.status(500).json(err);
@@ -14,6 +16,7 @@ module.exports = {
   async getSingleThoughts(req, res) {
     try {
       const thoughtData = await Thought.findOne({ _id: req.params.thoughtsId })
+      .select('-__v');
 
       if (!thoughtData) {
         return res.status(404).json({ message: 'No thoughts with that name' });
@@ -27,11 +30,20 @@ module.exports = {
   // Create a Thoughts
   async createThoughts(req, res) {
     try {
-      const thoughtData = await Thoughts.create(req.body);
+      const thoughtData = await Thought.create(req.body);
+      const userData = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $push: { thoughts: thoughtData._id } },
+        { new: true }
+      );
+      
+      if (!userData) {
+        return res.status(404).json({ message: 'No user with this id!' });
+      }
+
       res.json(thoughtData);
     } catch (err) {
-      console.log(err);
-      return res.status(500).json(err);
+      res.status(500).json(err);
     }
   },
   // Delete a Thought
@@ -71,8 +83,7 @@ module.exports = {
     try {
       const thoughtData = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtsId },
-        { $addToSet: { reactions: req.body } },
-        { runValidators: true, new: true }
+        { $addToSet: { reactions: req.body } }
       );
 
       if (!thoughtData) {

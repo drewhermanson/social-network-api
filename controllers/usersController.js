@@ -1,10 +1,15 @@
 const { User, Thought } = require('../models');
 
+
 module.exports = {
   // Get all Users
   async getUsers(req, res) {
     try {
-      const userData = await User.find().populate('students');
+      const userData = await User.find()
+        .populate(`friends`)
+        .populate(`thoughts`)
+        .select('-__v');
+
       res.json(userData);
     } catch (err) {
       res.status(500).json(err);
@@ -14,8 +19,10 @@ module.exports = {
   async getSingleUsers(req, res) {
     try {
       const userData = await User.findOne({ _id: req.params.usersId })
-        .populate('thoughts');
-
+      .populate(`friends`)
+      .populate(`thoughts`)
+      .select('-__v');
+      
       if (!userData) {
         return res.status(404).json({ message: 'No User with that ID' });
       }
@@ -28,7 +35,8 @@ module.exports = {
   // Create a User
   async createUsers(req, res) {
     try {
-      const userData = await User.create(req.body);
+      const userData = await User.create(req.body)
+      .select('-__v');
       res.json(userData);
     } catch (err) {
       console.log(err);
@@ -38,7 +46,8 @@ module.exports = {
   // Delete a User
   async deleteUsers(req, res) {
     try {
-      const userData = await User.findOneAndDelete({ _id: req.params.usersId });
+      const userData = await User.findOneAndDelete({ _id: req.params.usersId })
+      .select('-__v');
 
       if (!userData) {
         return res.status(404).json({ message: 'No such user exists' });

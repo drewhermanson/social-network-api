@@ -10,7 +10,9 @@ const {
 } = require('../../controllers/thoughtsController.js');
 
 // /api/Thoughts
-router.route('/').get(getThoughts).post(createThoughts);
+router.route('/').get(getThoughts);
+
+router.route('/:userId').post(createThoughts)
 
 // /api/Thoughts/:ThoughtsId
 router.route('/:thoughtsId').get(getSingleThoughts).put(updateThoughts).delete(deleteThoughts);

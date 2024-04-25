@@ -35,8 +35,7 @@ module.exports = {
   // Create a User
   async createUsers(req, res) {
     try {
-      const userData = await User.create(req.body)
-      .select('-__v');
+      const userData = await User.create(req.body);
       res.json(userData);
     } catch (err) {
       console.log(err);
